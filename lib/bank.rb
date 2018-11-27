@@ -12,8 +12,7 @@ class Bank
   end
 
   def deposit(person, amount)
-    return "No account" if accounts[person.name] == nil
-    return "Insufficient funds" if person.cash < amount
+    valid_transaction?(person, amount)
     @accounts[person.name] += amount
     person.cash -= amount
   end
@@ -35,4 +34,16 @@ class Bank
   def total_cash
     @accounts.values.reduce(:+)
   end
+  
+  private
+  
+    def valid_transaction?(person, amount)
+      
+      raise NoAccountError.new("No account found") if accounts[person.name] == nil
+      raise InsufficientFundsError.new("not enough money") if person.cash < amount
+    end
+    
+  class NoAccountError < StandardError; end
+  class InsufficientFundsError < StandardError; end
 end
+

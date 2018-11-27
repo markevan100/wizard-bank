@@ -1,4 +1,7 @@
 gem 'minitest', '~> 5.2'
+require 'mocha'
+require 'minitest/unit'
+require 'mocha/minitest'
 require 'minitest/autorun'
 require 'minitest/pride'
 require '../lib/person'
@@ -46,12 +49,19 @@ class BankTest < Minitest::Test
   end
 
   def test_deposit_person_without_account_cannot_deposit
-    assert_equal "No account", @wells_fargo.deposit(@person1, 750)
+    exception = assert_raises Bank::NoAccountError do
+      @wells_fargo.deposit(@person1, 750)
+    end
+    assert_equal "No account found", exception.message
   end
 
   def test_deposit_cant_deposit_more_than_you_have
     @wells_fargo.open_account(@person1)
-    assert_equal "Insufficient funds", @wells_fargo.deposit(@person1, 1050)
+    
+    exception = assert_raises do
+      @wells_fargo.deposit(@person1, 1050)
+    end
+    assert_equal "not enough money", exception.message
   end
 
   def test_withdrawl_cash_goes_up_balence_down
@@ -91,6 +101,7 @@ class BankTest < Minitest::Test
   end
 
   def test_total_cash_in_all_accounts_in_a_bank
+    
     @wells_fargo.open_account(@person1)
     @wells_fargo.deposit(@person1, 750)
     person2 = Person.new("Tim", 650)
