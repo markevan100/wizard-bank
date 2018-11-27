@@ -61,7 +61,7 @@ class BankTest < Minitest::Test
     exception = assert_raises do
       @wells_fargo.deposit(@person1, 1050)
     end
-    assert_equal "not enough money", exception.message
+    assert_equal "Not enough money", exception.message
   end
 
   def test_withdrawl_cash_goes_up_balence_down
@@ -74,7 +74,11 @@ class BankTest < Minitest::Test
 
   def test_withdrawl_cant_withdrawl_more_than_you_have
     @wells_fargo.open_account(@person1)
-    assert_equal "Insufficient funds", @wells_fargo.withdrawl(@person1, 1050)
+    exception = assert_raises Bank::InsufficientFundsError do
+      @wells_fargo.withdrawl(@person1, 1050)
+    end
+    assert_equal Bank::InsufficientFundsError, exception.class
+    assert_equal "Not enough money", exception.message
   end
 
   def test_transfer_to_another_bank
@@ -89,7 +93,9 @@ class BankTest < Minitest::Test
 
   def test_transfer_to_bank_where_no_account
     chase = Bank.new("Chase")
-    assert_equal "No account", @wells_fargo.transfer(@person1, chase, 50)
+    assert_raises Bank::NoAccountError do
+      @wells_fargo.transfer(@person1, chase, 50)
+    end
   end
 
 
@@ -97,7 +103,9 @@ class BankTest < Minitest::Test
     chase = Bank.new("Chase")
     @wells_fargo.open_account(@person1)
     chase.open_account(@person1)
-    assert_equal "Insufficient funds", chase.transfer(@person1, @wells_fargo, 2000)
+    assert_raises Bank::InsufficientFundsError do
+      chase.transfer(@person1, @wells_fargo, 2000)
+    end
   end
 
   def test_total_cash_in_all_accounts_in_a_bank

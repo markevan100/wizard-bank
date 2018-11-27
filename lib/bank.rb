@@ -12,21 +12,19 @@ class Bank
   end
 
   def deposit(person, amount)
-    valid_transaction?(person, amount)
+    validate_transaction(person, amount)
     @accounts[person.name] += amount
     person.cash -= amount
   end
 
   def withdrawl(person, amount)
-    return "No account" if accounts[person.name] == nil
-    return "Insufficient funds" if accounts[person.name] < amount
+    validate_transaction(person, amount)
     @accounts[person.name] -= amount
     person.cash += amount
   end
 
   def transfer(person, bank, amount)
-    return "No account" if accounts[person.name] == nil || bank.accounts[person.name] == nil
-    return "Insufficient funds" if accounts[person.name] < amount
+    validate_transaction(person, amount)
     @accounts[person.name] -= amount
     bank.accounts[person.name] += amount
   end
@@ -36,11 +34,9 @@ class Bank
   end
   
   private
-  
-    def valid_transaction?(person, amount)
-      
+    def validate_transaction(person, amount)
       raise NoAccountError.new("No account found") if accounts[person.name] == nil
-      raise InsufficientFundsError.new("not enough money") if person.cash < amount
+      raise InsufficientFundsError.new("Not enough money") if person.cash < amount
     end
     
   class NoAccountError < StandardError; end
